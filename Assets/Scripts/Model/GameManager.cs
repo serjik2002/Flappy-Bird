@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     public void Play()
     {
         OnGameStart?.Invoke();
+        _player.StateMachine.ChangeState(new WaitState(_player));
         IsGamePlayed = true;
     }
 

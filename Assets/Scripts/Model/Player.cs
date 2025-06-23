@@ -5,23 +5,26 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float _jumpForce;
     [SerializeField] private Rigidbody2D _rigidbody;
-    [SerializeField] private Collider2D _collider;
+
+    public StateMachine StateMachine { get; private set; }
 
     public UnityEvent OnPlayerDead;
     public UnityEvent OnCheckpointEnter;
 
+    private void Awake()
+    {
+        StateMachine = new StateMachine();
+    }
+
     private void Start()
     {
-        //GameManager.Instance.OnGameStart
-        _rigidbody.bodyType = RigidbodyType2D.Static;
+        StateMachine.Initialize(new WaitState(this));
     }
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
+        StateMachine.CurrentState?.HandleInput();
+        StateMachine.Update();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -42,3 +45,4 @@ public class Player : MonoBehaviour
         _rigidbody.linearVelocity = Vector2.up * _jumpForce;
     }
 }
+
