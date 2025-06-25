@@ -17,6 +17,7 @@ public class ObstacleSpawner : MonoBehaviour
     private void Start()
     {
         _pool = new ObjectPool(_obstaclePrefab, _spawnCount, false);
+        GameManager.Instance.OnGameStarted.AddListener(Reload);
     }
     private void Update()
     {
@@ -45,5 +46,14 @@ public class ObstacleSpawner : MonoBehaviour
         float spawnHeigh = UnityEngine.Random.Range(-_minHeighRange, _maxHeighRange);
         var obstacle = _pool.GetObjectFromPool();
         obstacle.transform.position = new Vector2(transform.position.x, spawnHeigh);
+    }
+
+    private void Reload()
+    {
+        for (int i = 0; i < _pool.ActiveObjects.Count; i++)
+        {
+            var item = _pool.ActiveObjects[i];
+            _pool.ReturnObjectToPool(item);
+        }
     }
 }

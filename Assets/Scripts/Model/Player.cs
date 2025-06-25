@@ -5,8 +5,10 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float _jumpForce;
     [SerializeField] private Rigidbody2D _rigidbody;
+    [SerializeField] private Vector3 _startPosition;
 
     public StateMachine StateMachine { get; private set; }
+    public Vector3 StartPosition => _startPosition;
 
     public UnityEvent OnPlayerDead;
     public UnityEvent OnCheckpointEnter;
@@ -18,6 +20,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
+        GameManager.Instance.OnGameStarted.AddListener(Play);
         StateMachine.Initialize(new WaitState(this));
     }
 
@@ -43,6 +46,16 @@ public class Player : MonoBehaviour
     public void Jump()
     {
         _rigidbody.linearVelocity = Vector2.up * _jumpForce;
+    }
+
+    public void SetStartPosition()
+    {
+        transform.position = _startPosition;
+    }
+
+    public void Play()
+    {
+        //this.StateMachine.ChangeState(new F(this));
     }
 }
 

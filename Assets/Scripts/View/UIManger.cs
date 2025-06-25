@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIManger : MonoBehaviour
 {
-    [SerializeField] private GameObject _playBtn;
+    [SerializeField] private Button _playBtn;
 
     public static UIManger Instance { get; private set; }
 
@@ -12,6 +13,7 @@ public class UIManger : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -20,17 +22,11 @@ public class UIManger : MonoBehaviour
     }
     private void Start()
     {
-        GameManager.Instance.OnGameStart.AddListener(Play);
-        GameManager.Instance.OnGameEnd.AddListener(Stop);
     }
 
-    private void Play()
+    public void LoadGameScene()
     {
-        _playBtn.SetActive(false);
+        SceneManager.LoadScene("Game");
     }
-
-    private void Stop()
-    {
-        _playBtn.SetActive(true);
-    }
+    
 }
