@@ -20,7 +20,7 @@ public class WaitState : State
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            _player.StateMachine.ChangeState(new FlyState(_player));
+            GameManager.Instance.StartGame();
         }
     }
 }

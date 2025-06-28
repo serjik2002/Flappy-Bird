@@ -10,12 +10,14 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance { get; private set; }
 
-    public GameState CurrentState { get; private set; }
-
     public bool IsPlaying { get; private set; }
     public bool IsPaused { get; private set; }
 
-    public UnityEvent OnGameStateChanged;
+    public UnityEvent OnGameStarted;
+    public UnityEvent OnGameOver;
+    public UnityEvent OnGamePaused;
+    public UnityEvent OnGameResumed;
+    public UnityEvent OnRestartGame;
 
     private void Awake()
     {
@@ -29,56 +31,36 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    public void ChangeState(GameState newState)
+    private void Start()
     {
-        if (CurrentState == newState) return;
-        CurrentState = newState;
-        OnGameStateChanged?.Invoke();
-    }
-    //private void Start()
-    //{
-    //    _player.OnPlayerDead.AddListener(Stop);
-    //    IsGamePlayed = false;
-    //}
-
-    //public void Play()
-    //{
-    //    OnGameStarted?.Invoke();
-    //    IsGamePlayed = true;
-    //}
-
-    //public void Stop()
-    //{
-    //    OnGameOver?.Invoke();
-    //    IsGamePlayed = false;
-    //}
-
-}
-
-
-public enum GameState
-{
-
-}
-
-public abstract class GameStateHandlerBase : MonoBehaviour
-{
-    private void OnEnable()
-    {
-        GameManager.Instance.OnGameStateChanged.AddListener(HandleGameStateChange);
+        _player.OnPlayerDead.AddListener(GameOver);
     }
 
-    private void OnDisable()
+    public void StartGame()
     {
-        
+        OnGameStarted?.Invoke();
     }
 
-    private void HandleGameStateChange(GameState newState)
+    public void GameOver()
     {
-        OnGameStateChanged(newState);
+        OnGameOver?.Invoke();
     }
 
-    protected abstract void OnGameStateChanged(GameState state);
+    public void PauseGame()
+    {
+        OnGamePaused?.Invoke();
+        Time.timeScale = 0f;
+    }
 
+
+    public void ResumeGame()
+    {
+        OnGameResumed?.Invoke();
+        Time.timeScale = 1f;
+    }
+
+    public void RestartGame()
+    {
+        OnRestartGame?.Invoke();
+    }
 }

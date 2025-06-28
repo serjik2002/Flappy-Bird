@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,19 +11,31 @@ public class ObstacleSpawner : MonoBehaviour
     [SerializeField] private float _minHeighRange;
     [SerializeField] private float _maxHeighRange;
     [SerializeField] private int _spawnCount;
+    
+    private bool _isSpawned;
     private float _timeToSpawn = 0;
-
     private ObjectPool _pool;
+
+
 
     private void Start()
     {
+        _isSpawned = false;
         _pool = new ObjectPool(_obstaclePrefab, _spawnCount, false);
-        GameManager.Instance.OnGameStarted.AddListener(Reload);
+        GameManager.Instance.OnGameStarted.AddListener(StartSpawn);
+        GameManager.Instance.OnGameResumed.AddListener(StartSpawn);
+        GameManager.Instance.OnGameOver.AddListener(StopSpawn);
+        GameManager.Instance.OnGamePaused.AddListener(StopSpawn);
+        GameManager.Instance.OnRestartGame.AddListener(Reload);
+    }
+    private void OnEnable()
+    {
+        
     }
     private void Update()
     {
         //если игра запущена запустить спавн препятствий
-        if (GameManager.Instance.IsGamePlayed)
+        if (_isSpawned)
         {
             _timeToSpawn -= Time.deltaTime;
             if (_timeToSpawn <= 0 )
@@ -50,10 +63,21 @@ public class ObstacleSpawner : MonoBehaviour
 
     private void Reload()
     {
-        for (int i = 0; i < _pool.ActiveObjects.Count; i++)
+        foreach (var item in _pool.ActiveObjects.ToList()) // using System.Linq;
         {
-            var item = _pool.ActiveObjects[i];
             _pool.ReturnObjectToPool(item);
         }
+        _pool.ActiveObjects.Clear(); // опционально, если нужно
+        _timeToSpawn = 0;
+    }
+
+    private void StartSpawn()
+    {
+        _isSpawned = true;
+    }
+
+    private void StopSpawn()
+    {;
+        _isSpawned = false;
     }
 }

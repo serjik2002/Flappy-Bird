@@ -20,8 +20,10 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnGameStarted.AddListener(Play);
         StateMachine.Initialize(new WaitState(this));
+        GameManager.Instance.OnGameStarted.AddListener(Play);
+        GameManager.Instance.OnGameOver.AddListener(GameOver);
+        GameManager.Instance.OnRestartGame.AddListener(RestartGame);
     }
 
     private void Update()
@@ -30,17 +32,16 @@ public class Player : MonoBehaviour
         StateMachine.Update();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.tag == "Obstacle")
+        if (collision.collider.tag == "Obstacle")
         {
             OnPlayerDead?.Invoke();
         }
-        if (collision.tag == "checkPoint")
+        if (collision.collider.tag == "checkPoint")
         {
             OnCheckpointEnter?.Invoke();
         }
-
     }
 
     public void Jump()
@@ -55,7 +56,18 @@ public class Player : MonoBehaviour
 
     public void Play()
     {
-        //this.StateMachine.ChangeState(new F(this));
+        StateMachine.ChangeState(new FlyState(this));
+    }
+
+    public void GameOver()
+    {
+        StateMachine.ChangeState(new DieState(this));
+    }
+
+    public void RestartGame()
+    {
+        SetStartPosition();
+        StateMachine.ChangeState(new WaitState(this));
     }
 }
 

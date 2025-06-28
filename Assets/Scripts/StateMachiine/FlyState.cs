@@ -19,8 +19,22 @@ public class FlyState : State
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            _player.Jump();
+            if (_player.transform.position.y <= 6)
+            {
+                _player.Jump();
+            }
         }
+    }
+}
+
+public class DieState : State
+{
+    public DieState(Player player) : base(player) { }
+
+    public override void Enter()
+    {
+        _rigidbody.bodyType = RigidbodyType2D.Static;
+        Debug.Log("Player is flying!");
     }
 }
 
