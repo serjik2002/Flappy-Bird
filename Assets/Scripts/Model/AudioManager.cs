@@ -5,9 +5,11 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
-    private AudioSource[] _allAudioSources;
-    public bool IsMuted {  get; private set; }
-    public UnityEvent OnMutedToggle;
+    public bool IsSoundMuted { get; private set; }
+    public bool IsMusicMuted { get; private set; }
+
+    public UnityEvent OnSoundToggle;
+    public UnityEvent OnMusicToggle;
 
     void Awake()
     {
@@ -15,9 +17,9 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            IsMuted = PlayerPrefs.GetInt("Muted", 0) == 1;
-            _allAudioSources = FindObjectsByType<AudioSource>(FindObjectsSortMode.InstanceID);
-            ApplyMute();
+
+            IsSoundMuted = PlayerPrefs.GetInt("SoundMuted", 0) == 1;
+            IsMusicMuted = PlayerPrefs.GetInt("MusicMuted", 0) == 1;
         }
         else
         {
@@ -25,19 +27,55 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void ToggleMute()
+    public void ToggleSoundMute()
     {
-        IsMuted = !IsMuted;
-        PlayerPrefs.SetInt("Muted", IsMuted ? 1 : 0);
-        ApplyMute();
-        OnMutedToggle.Invoke();
+        IsSoundMuted = !IsSoundMuted;
+        PlayerPrefs.SetInt("SoundMuted", IsSoundMuted ? 1 : 0);
+
+        OnSoundToggle.Invoke();
+
+        Debug.Log($"Sound Muted: {IsSoundMuted}");
     }
 
-    void ApplyMute()
+    public void ToggleMusicMute()
     {
-        foreach (var source in _allAudioSources)
+        IsMusicMuted = !IsMusicMuted;
+        PlayerPrefs.SetInt("MusicMuted", IsMusicMuted ? 1 : 0);
+
+        OnMusicToggle.Invoke();
+
+        Debug.Log($"Music Muted: {IsMusicMuted}");
+    }
+
+    public void PlaySound(AudioClip clip, float volume = 1f)
+    {
+        if (clip == null) return;
+
+        if (!IsSoundMuted)
         {
-            source.mute = IsMuted;
+            AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position, volume);
         }
     }
+
+    public void PlayMusic(AudioSource musicSource, AudioClip clip, float volume = 1f, bool loop = true)
+    {
+        if (musicSource == null || clip == null) return;
+
+        musicSource.clip = clip;
+        musicSource.volume = volume;
+        musicSource.loop = loop;
+
+        musicSource.mute = IsMusicMuted;
+
+        if (!IsMusicMuted)
+        {
+            musicSource.Play();
+        }
+        else
+        {
+            musicSource.Stop();
+        }
+    }
+
+
 }
