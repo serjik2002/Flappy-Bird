@@ -17,6 +17,7 @@ public class FlyState : State
 
     public override void HandleInput()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (_player.transform.position.y <= 6)
@@ -24,18 +25,18 @@ public class FlyState : State
                 _player.Jump();
             }
         }
+ #elif UNITY_ANDROID || UNITY_IOS
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            if (_player.transform.position.y <= 6)
+            {
+                _player.Jump();
+            }
+        }
+#endif
     }
-}
 
-public class DieState : State
-{
-    public DieState(Player player) : base(player) { }
-
-    public override void Enter()
-    {
-        _rigidbody.bodyType = RigidbodyType2D.Static;
-        Debug.Log("Player is flying!");
-    }
+        
 }
 
 

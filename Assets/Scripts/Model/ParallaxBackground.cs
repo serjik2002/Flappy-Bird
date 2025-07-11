@@ -17,6 +17,8 @@ public class ParallaxBackground : MonoBehaviour
     private List<GameObject> _secondLayer;
     private List<GameObject> _thirdLayer;
 
+    private bool _isMoving = true;
+
     private float[] _layerWidths = new float[3];
 
     private void InitializeLayers()
@@ -34,12 +36,13 @@ public class ParallaxBackground : MonoBehaviour
 
             if (i == 0)
             {
-                _layerWidths[0] = firstLayerObj.GetComponent<SpriteRenderer>().bounds.size.x;
+                _layerWidths[0] = Mathf.Round(firstLayerObj.GetComponent<SpriteRenderer>().bounds.size.x * 100f) / 100f;
                 firstLayerObj.transform.position = Vector3.zero;
             }
             else
             {
-                firstLayerObj.transform.position = new Vector3(i * _layerWidths[0], 0, 0);
+                
+                firstLayerObj.transform.position = new Vector3(i * (_layerWidths[0]), 0, 0);
             }
         }
 
@@ -81,10 +84,15 @@ public class ParallaxBackground : MonoBehaviour
     private void Start()
     {
         InitializeLayers();
+        GameManager.Instance.OnGameStarted.AddListener(() => _isMoving = true);
+        GameManager.Instance.OnGameOver.AddListener(() => _isMoving = false);
+        GameManager.Instance.OnRestartGame.AddListener(() => _isMoving = true);
     }
 
     private void Update()
     {
+        if (!_isMoving)
+            return;
         MoveLayer(_firstLayer, _firstLayerSpeed, _layerWidths[0]);
         MoveLayer(_secondLayer, _secondLayerSpeed, _layerWidths[1]);
         MoveLayer(_thirdLayer, _thirdLayerSpeed, _layerWidths[2]);
@@ -105,7 +113,7 @@ public class ParallaxBackground : MonoBehaviour
 
                 // Перемещаем текущий объект за самый правый
                 layer[i].transform.position = new Vector3(
-                    rightmost.transform.position.x + width,
+                    rightmost.transform.position.x + width - 0.01f,
                     rightmost.transform.position.y,
                     rightmost.transform.position.z);
             }

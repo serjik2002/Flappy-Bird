@@ -14,15 +14,12 @@ public class AudioListener : MonoBehaviour
     }
     private void Start()
     {
+        AudioManager.Instance.OnMusicToggle.AddListener(OnMusicToggle);
+        AudioManager.Instance.OnSoundToggle.AddListener(OnSoundToggle);
         OnSoundToggle();
         OnMusicToggle();
     }
 
-    private void OnEnable()
-    {
-        AudioManager.Instance.OnMusicToggle.AddListener(OnMusicToggle);
-        AudioManager.Instance.OnSoundToggle.AddListener(OnSoundToggle);
-    }
 
     public void OnMusicToggle()
     {
